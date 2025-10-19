@@ -27,11 +27,11 @@ Each project should have its own folder inside your team directory as shown belo
 
 Each folder should include the project code and a clear explanation inside it (like a GitHub project structure — description, screenshots, and usage can be written in the main code area or project description).
 
-| Project # | Project Title | Short Description |
-|------------|----------------|------------------|
-| 1 | [Project Title 1] | [One-line summary of what it does] |
-| 2 | [Project Title 2] | [Short description] |
-| 3 | [Project Title 3] | [Short description] |
+| Project # | Project Title | 
+|------------|----------------|
+| 1 | [Project Title 1] | 
+| 2 | [Project Title 2] | 
+| 3 | [Project Title 3] |
 
 ---
 
