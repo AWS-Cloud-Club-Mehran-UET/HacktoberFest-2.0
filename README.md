@@ -1,18 +1,17 @@
 # 🚀 HacktoberFest-Hackathon 2025 
 
 Welcome to the **HacktoberFest-Hackathon 2025**! 🎉  
-This repository is the central workspace for all participants to collaborate, code, and submit their projects.
+This repository is the central workspace for all participants to collaborate, code, and submit their projects. Read the instructions carefully to understand the workflow and rules for the event.
 
 ---
 
 ## 🏁 Introduction
 
 The **Hackathon 2025** brings together creative developers, designers, and innovators to solve real-world problems through technology.  
-Your goal is to design, develop, and deliver a working solution that aligns with the event’s theme:  
-**"Innovation Through Technology"**
+Your goal is to design, develop, and deliver a working solution.
 
 - **Format:** Team-based hackathon  
-- **Duration:** 8 hrs  
+- **Duration:** 7 hrs  
 - **Submission:** Teams will fork this repo, develop their solution, and submit via Pull Request to the `submission` branch.  
 
 ---
@@ -58,10 +57,6 @@ To ensure smooth participation, follow the official workflow and collaboration r
 
 ## 🚫 Disqualification Rules
 
-To maintain fairness and integrity:
-- ❌ **AI-generated code** or automated assistance tools are strictly prohibited.  
-- ❌ **Plagiarism** or copying from other repositories is not allowed.  
-- ❌ **Modifying or deleting** other teams’ folders will lead to immediate disqualification.  
 - ❌ **Late Pull Requests** (after the deadline) will not be accepted.  
 
 Ensure all work is original and created during the event timeframe.
