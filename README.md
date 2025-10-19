@@ -49,7 +49,7 @@ To ensure smooth participation, follow the official workflow and collaboration r
 
 ## ⏱️ Time Limits
 
-- Each team will have **8 hrs** to complete their project.  
+- Each team will have **7 hrs** to complete their project.  
 - **Pull Requests must be submitted before the deadline.**  
 - Late submissions will **not** be considered, regardless of progress.  
 
