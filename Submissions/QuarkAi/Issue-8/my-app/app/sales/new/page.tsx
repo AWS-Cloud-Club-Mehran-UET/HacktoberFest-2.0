@@ -77,6 +77,15 @@ export default function NewSalePage() {
       }
     }
 
+    // Validate quantity doesn't exceed available stock
+    if (field === 'quantity') {
+      const product = products.find(p => p.id === newItems[index].productId)
+      if (product && value > product.quantity) {
+        alert(`Cannot sell ${value} units. Only ${product.quantity} units available in stock for ${product.name}`)
+        newItems[index].quantity = product.quantity
+      }
+    }
+
     if (field === 'productId' || field === 'quantity') {
       const item = newItems[index]
       item.subtotal = item.unitPrice * item.quantity
@@ -92,6 +101,19 @@ export default function NewSalePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user || items.length === 0) return
+
+    // Final validation: Check all quantities against stock
+    for (const item of items) {
+      const product = products.find(p => p.id === item.productId)
+      if (!product) {
+        alert(`Product not found: ${item.productName}`)
+        return
+      }
+      if (item.quantity > product.quantity) {
+        alert(`Cannot sell ${item.quantity} units of ${product.name}. Only ${product.quantity} units available in stock.`)
+        return
+      }
+    }
 
     setLoading(true)
 
@@ -186,10 +208,16 @@ export default function NewSalePage() {
                       id={`quantity-${index}`}
                       type="number"
                       min="1"
+                      max={item.productId ? products.find(p => p.id === item.productId)?.quantity : undefined}
                       value={item.quantity}
                       onChange={(e) => updateItem(index, 'quantity', Number(e.target.value))}
                       required
                     />
+                    {item.productId && products.find(p => p.id === item.productId) && (
+                      <p className="text-xs text-muted-foreground">
+                        Max: {products.find(p => p.id === item.productId)?.quantity} available
+                      </p>
+                    )}
                   </div>
                   <div className="col-span-2 space-y-2">
                     <Label htmlFor={`price-${index}`} className="text-sm font-medium">

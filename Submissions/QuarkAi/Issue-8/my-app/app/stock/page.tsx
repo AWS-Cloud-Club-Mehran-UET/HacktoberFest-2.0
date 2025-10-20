@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Minus, Package2, Search, AlertCircle } from 'lucide-react'
+import { Plus, Minus, Package2, Search, AlertCircle, History, Clock } from 'lucide-react'
 import { useUser } from '@/hooks/useUser'
 import { Textarea } from '@/components/ui/textarea'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -27,6 +27,7 @@ interface StockTransaction {
   id: string
   product_id: string
   product_name: string
+  product_sku: string
   type: 'add' | 'remove'
   quantity: number
   reason: string
@@ -34,7 +35,10 @@ interface StockTransaction {
   new_quantity: number
   created_at: string
   created_by: string
-  user_name: string
+  profiles?: {
+    email: string
+    full_name: string | null
+  }
 }
 
 export default function StockManagementPage() {
@@ -42,7 +46,10 @@ export default function StockManagementPage() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const [isHistorySheetOpen, setIsHistorySheetOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [transactions, setTransactions] = useState<StockTransaction[]>([])
+  const [loadingTransactions, setLoadingTransactions] = useState(false)
   const [loading, setLoading] = useState(true)
   const { user, isAdmin } = useUser()
 
@@ -111,6 +118,49 @@ export default function StockManagementPage() {
     setIsSheetOpen(true)
   }
 
+  const openHistorySheet = async (product: Product) => {
+    setSelectedProduct(product)
+    setIsHistorySheetOpen(true)
+    await fetchTransactionHistory(product.id)
+  }
+
+  const fetchTransactionHistory = async (productId: string) => {
+    setLoadingTransactions(true)
+    try {
+      const { data, error } = await supabase
+        .from('stock_transactions')
+        .select(`
+          *,
+          profiles (
+            email,
+            full_name
+          )
+        `)
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      setTransactions(data || [])
+      setLoadingTransactions(false)
+    } catch (error) {
+      console.error('Error fetching transaction history:', error)
+      setTransactions([])
+      setLoadingTransactions(false)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user || !selectedProduct || !formData.quantity) return
@@ -133,15 +183,8 @@ export default function StockManagementPage() {
     }
 
     try {
-      // Update product quantity
-      const { error: updateError } = await supabase
-        .from('products')
-        .update({ quantity: newQuantity })
-        .eq('id', selectedProduct.id)
-
-      if (updateError) throw updateError
-
-      // Log the transaction
+      // First, manually log the transaction with reason
+      // (The automatic trigger doesn't have access to the reason field)
       const { error: logError } = await supabase
         .from('stock_transactions')
         .insert({
@@ -158,8 +201,18 @@ export default function StockManagementPage() {
 
       if (logError) {
         console.error('Error logging transaction:', logError)
-        // Continue anyway, don't fail the whole operation
+        throw logError
       }
+
+      // Then update product quantity
+      // Note: If there's an automatic trigger, it might create a duplicate
+      // We'll handle that with a SQL fix
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ quantity: newQuantity })
+        .eq('id', selectedProduct.id)
+
+      if (updateError) throw updateError
       
       alert(`Stock ${formData.type === 'add' ? 'added' : 'removed'} successfully!`)
       resetForm()
@@ -304,13 +357,21 @@ export default function StockManagementPage() {
                           </div>
                           <div className="flex gap-2">
                             <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openHistorySheet(product)}
+                              title="View stock history"
+                            >
+                              <History className="h-4 w-4" />
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => openStockSheet(product)}
                               disabled={!isAdmin}
                             >
                               <Plus className="h-4 w-4 mr-1" />
-                              Add Stock
+                              Add
                             </Button>
                             <Button
                               variant="outline"
@@ -323,7 +384,7 @@ export default function StockManagementPage() {
                               disabled={!isAdmin || product.quantity === 0}
                             >
                               <Minus className="h-4 w-4 mr-1" />
-                              Remove Stock
+                              Remove
                             </Button>
                           </div>
                         </div>
@@ -445,6 +506,122 @@ export default function StockManagementPage() {
                 </Button>
               </SheetFooter>
             </form>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Stock History Sheet */}
+      <Sheet open={isHistorySheetOpen} onOpenChange={setIsHistorySheetOpen}>
+        <SheetContent className="sm:max-w-2xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Stock History</SheetTitle>
+            <SheetDescription>
+              View all stock adjustments for this product
+            </SheetDescription>
+          </SheetHeader>
+
+          {selectedProduct && (
+            <div className="space-y-6 py-6">
+              {/* Product Info */}
+              <div className="space-y-2 p-4 border rounded-lg bg-muted/50">
+                <div>
+                  <p className="text-sm font-medium">Product</p>
+                  <p className="text-lg font-semibold">{selectedProduct.name}</p>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">SKU: {selectedProduct.sku}</span>
+                  <Badge variant="secondary">
+                    Current Stock: {selectedProduct.quantity}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Transaction History */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Transaction History</h3>
+                  <Badge variant="outline">
+                    {transactions.length} {transactions.length === 1 ? 'transaction' : 'transactions'}
+                  </Badge>
+                </div>
+
+                {loadingTransactions ? (
+                  <div className="flex items-center justify-center py-12">
+                    <p className="text-muted-foreground">Loading history...</p>
+                  </div>
+                ) : transactions.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center border rounded-lg">
+                    <Clock className="h-12 w-12 mb-3 text-muted-foreground" />
+                    <p className="text-muted-foreground">No transaction history</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Stock adjustments will appear here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {transactions.map((transaction) => (
+                      <Card key={transaction.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  variant={transaction.type === 'add' ? 'default' : 'destructive'}
+                                  className="capitalize"
+                                >
+                                  {transaction.type === 'add' ? (
+                                    <Plus className="h-3 w-3 mr-1" />
+                                  ) : (
+                                    <Minus className="h-3 w-3 mr-1" />
+                                  )}
+                                  {transaction.type}
+                                </Badge>
+                                <span className="text-sm font-medium">
+                                  {transaction.type === 'add' ? '+' : '-'}
+                                  {transaction.quantity} units
+                                </span>
+                              </div>
+
+                              <div className="text-sm">
+                                <p className="text-muted-foreground">
+                                  <span className="font-medium text-foreground">Stock changed:</span>{' '}
+                                  {transaction.previous_quantity} → {transaction.new_quantity}
+                                </p>
+                              </div>
+
+                              <div className="text-sm">
+                                <p className="text-muted-foreground">
+                                  <span className="font-medium text-foreground">Reason:</span>{' '}
+                                  {transaction.reason}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {formatDate(transaction.created_at)}
+                                </span>
+                                {transaction.profiles && (
+                                  <span>
+                                    By: {transaction.profiles.full_name || transaction.profiles.email}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <SheetFooter>
+                <Button variant="outline" onClick={() => setIsHistorySheetOpen(false)}>
+                  Close
+                </Button>
+              </SheetFooter>
+            </div>
           )}
         </SheetContent>
       </Sheet>

@@ -53,18 +53,46 @@ export default function InvoiceDetailPage() {
     if (!invoice) return
 
     const doc = new jsPDF()
+    const pageWidth = doc.internal.pageSize.getWidth()
 
-    doc.setFontSize(20)
-    doc.text('ShopEase', 14, 20)
+    // Header - ShopEase
+    doc.setFontSize(24)
+    doc.setFont('helvetica', 'bold')
+    doc.text('ShopEase', pageWidth / 2, 20, { align: 'center' })
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Inventory & Sales Management', pageWidth / 2, 27, { align: 'center' })
 
+    // Line separator
+    doc.setLineWidth(0.5)
+    doc.line(14, 32, pageWidth - 14, 32)
+
+    // Invoice Information
     doc.setFontSize(12)
-    doc.text(`Invoice: ${invoice.invoice_number}`, 14, 30)
-    doc.text(`Date: ${formatDateTime(invoice.created_at)}`, 14, 36)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Invoice Information', 14, 42)
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Invoice Number: ${invoice.invoice_number}`, 14, 50)
+    doc.text(`Date: ${formatDateTime(invoice.created_at)}`, 14, 56)
+    doc.text(`Payment Method: ${invoice.payment_method.toUpperCase()}`, 14, 62)
+    doc.text(`Status: ${invoice.status.toUpperCase()}`, 14, 68)
 
-    if (invoice.customer_name) {
-      doc.text(`Customer: ${invoice.customer_name}`, 14, 42)
+    // Customer Information
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Customer Information', 14, 80)
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Name: ${invoice.customer_name || 'Walk-in Customer'}`, 14, 88)
+    if (invoice.customer_phone) {
+      doc.text(`Phone: ${invoice.customer_phone}`, 14, 94)
     }
 
+    // Items Table
     const tableData = items.map(item => [
       item.product_name,
       item.quantity.toString(),
@@ -73,15 +101,65 @@ export default function InvoiceDetailPage() {
     ])
 
     autoTable(doc, {
-      startY: 50,
+      startY: invoice.customer_phone ? 102 : 96,
       head: [['Product', 'Quantity', 'Unit Price', 'Subtotal']],
       body: tableData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [66, 66, 66],
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 10,
+      },
+      bodyStyles: {
+        fontSize: 9,
+      },
+      columnStyles: {
+        0: { cellWidth: 80 },
+        1: { cellWidth: 30, halign: 'center' },
+        2: { cellWidth: 35, halign: 'right' },
+        3: { cellWidth: 35, halign: 'right' },
+      },
     })
 
-    const finalY = (doc as any).lastAutoTable.finalY || 50
+    const finalY = (doc as any).lastAutoTable.finalY || 96
 
-    doc.text(`Total: ${formatCurrency(invoice.total_amount)}`, 14, finalY + 10)
-    doc.text(`Payment Method: ${invoice.payment_method}`, 14, finalY + 16)
+    // Totals
+    doc.setLineWidth(0.5)
+    doc.line(14, finalY + 5, pageWidth - 14, finalY + 5)
+
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Total Amount:', pageWidth - 60, finalY + 15)
+    doc.text(formatCurrency(invoice.total_amount), pageWidth - 14, finalY + 15, { align: 'right' })
+
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(0, 150, 0)
+    doc.text('Profit:', pageWidth - 60, finalY + 22)
+    doc.text(formatCurrency(invoice.total_profit), pageWidth - 14, finalY + 22, { align: 'right' })
+    doc.setTextColor(0, 0, 0)
+
+    // Notes
+    if (invoice.notes) {
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Notes:', 14, finalY + 35)
+      
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      const splitNotes = doc.splitTextToSize(invoice.notes, pageWidth - 28)
+      doc.text(splitNotes, 14, finalY + 42)
+    }
+
+    // Footer
+    const footerY = doc.internal.pageSize.getHeight() - 20
+    doc.setLineWidth(0.5)
+    doc.line(14, footerY, pageWidth - 14, footerY)
+    
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'italic')
+    doc.text('Thank you for your business!', pageWidth / 2, footerY + 7, { align: 'center' })
 
     doc.save(`invoice-${invoice.invoice_number}.pdf`)
   }
@@ -96,6 +174,48 @@ export default function InvoiceDetailPage() {
 
   return (
     <div className="space-y-6">
+      <style jsx global>{`
+        @media print {
+          /* Hide sidebar and navigation */
+          nav, aside, header, .sidebar, [data-sidebar], .print\\:hidden {
+            display: none !important;
+          }
+          
+          /* Hide sidebar provider wrapper */
+          [data-sidebar="sidebar"],
+          [data-sidebar="provider"],
+          .group\\/sidebar-wrapper {
+            display: contents !important;
+          }
+          
+          /* Hide sidebar inset wrapper */
+          [data-sidebar="inset"] {
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          
+          /* Full width for content */
+          main {
+            margin: 0 !important;
+            padding: 20px !important;
+            width: 100% !important;
+          }
+          
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          
+          /* Hide the site header */
+          .sticky,
+          [class*="sticky"],
+          [class*="header"],
+          [class*="breadcrumb"] {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       <div className="flex items-center justify-between print:hidden">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Invoice Details</h1>
         <div className="flex gap-3">

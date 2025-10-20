@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { LayoutDashboard, Package, ShoppingCart, FileText, Settings, LogOut, Store, PackagePlus } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, FileText, Settings, LogOut, Store, PackagePlus, Sparkles } from "lucide-react"
 import { ShopEaseNavMain } from "@/components/shopease-nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { ShopEaseNavUser } from "@/components/shopease-nav-user"
@@ -25,6 +25,11 @@ export function ShopEaseAppSidebar({ ...props }: React.ComponentProps<typeof Sid
       title: "Dashboard",
       url: "/dashboard",
       icon: LayoutDashboard,
+    },
+    {
+      title: "AI Assistant",
+      url: "/ai-assistant",
+      icon: Sparkles,
     },
     {
       title: "Products",
@@ -53,13 +58,7 @@ export function ShopEaseAppSidebar({ ...props }: React.ComponentProps<typeof Sid
     },
   ]
 
-  const navSecondary = [
-    ...(isAdmin ? [{
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-    }] : []),
-  ]
+  const navSecondary: any[] = []
 
   const userData = {
     name: profile?.full_name || profile?.email?.split('@')[0] || "User",
