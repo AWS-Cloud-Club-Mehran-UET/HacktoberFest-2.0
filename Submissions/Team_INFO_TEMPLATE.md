@@ -4,7 +4,7 @@
 
 | Member Name | GitHub Username | Role |
 |--------------|----------------|------|
-| Muhammad Saim | [@M-Saim786] | Team Lead |
+| Muhammad Saim | [@M-Saim786] | Team Lead | Web Developer |
 | Muhammad Hussain | [@AiguyHussain] | Data Scientist |
 
 > The **Team Lead** is responsible for forking the repository, creating this folder, and adding all members as collaborators.
