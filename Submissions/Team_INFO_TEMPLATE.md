@@ -6,8 +6,6 @@
 |--------------|----------------|------|
 | Muhammad Saim | [@M-Saim786] | Team Lead |
 | Muhammad Hussain | [@AiguyHussain] | Data Scientist |
-<!-- | [Full Name] | [@username] | Designer |
-| [Full Name] | [@username] | [Role] | -->
 
 > The **Team Lead** is responsible for forking the repository, creating this folder, and adding all members as collaborators.
 
@@ -20,9 +18,9 @@ Each project should have its own folder inside your team directory as shown belo
 
 ```
 /submission/team-data-drifters/
-├── project-1/
-├── project-2/
-└── project-3/
+├── Skill Bridge/
+├── Shop Ease/
+└── project-1/
 ```
 
 Each folder should include the project code and a clear explanation inside it (like a GitHub project structure — description, screenshots, and usage can be written in the main code area or project description).
@@ -30,8 +28,8 @@ Each folder should include the project code and a clear explanation inside it (l
 | Project # | Project Title | 
 |------------|----------------|
 | 1 | Skill Bridge | 
-| 2 | [Project Title 2] | 
-| 3 | [Project Title 3] |
+| 2 | Shop Ease | 
+| 3 | Hospital Readmission Risk |
 
 ---
 
@@ -40,11 +38,11 @@ Each folder should include the project code and a clear explanation inside it (l
 List the main technologies and tools your team used across all projects.
 
 ```
-Example:
+
 Frontend:  React and Next js  
 Backend: Node.js and Express.js  
-Database: MongoDB and PostgreSQL
-Other Tools: GitHub, Figma
+Database: MongoDB
+Other Tools: GitHub, Figma, Dribble (FOR UI)
 ```
 
 ---
