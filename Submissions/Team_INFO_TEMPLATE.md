@@ -4,10 +4,9 @@
 
 | Member Name | GitHub Username | Role |
 |--------------|----------------|------|
-| [Full Name] | [@username] | Team Lead |
-| [Full Name] | [@username] | Developer |
-| [Full Name] | [@username] | Designer |
-| [Full Name] | [@username] | [Role] |
+| Jam Yousuf | [@jamyousuf005] | Developer |
+| [Sunjay Kumar] | [@sunjay-dev] | Team Lead |
+| [Hassan Rajput] | [@hassanrajput189] | Developer |
 
 > The **Team Lead** is responsible for forking the repository, creating this folder, and adding all members as collaborators.
 
@@ -19,19 +18,19 @@ Your team is required to complete **three projects**.
 Each project should have its own folder inside your team directory as shown below:
 
 ```
-/submission/team-[name]/
-├── project-1/
-├── project-2/
-└── project-3/
+/submission/webies/
+├── SmartCity Issue 9/
+├── ShopEase Issue 8/
+└── docker Issue 6/
 ```
 
 Each folder should include the project code and a clear explanation inside it (like a GitHub project structure — description, screenshots, and usage can be written in the main code area or project description).
 
 | Project # | Project Title | 
 |------------|----------------|
-| 1 | [Project Title 1] | 
-| 2 | [Project Title 2] | 
-| 3 | [Project Title 3] |
+| 1 | [docker Issue 6] | 
+| 2 | [ShopEase Issue 8] | 
+| 3 | [SmartCity Issue 9] |
 
 ---
 
@@ -41,10 +40,10 @@ List the main technologies and tools your team used across all projects.
 
 ```
 Example:
-Frontend: Flutter, React  
-Backend: Spring Boot, Node.js  
-Database: PostgreSQL  
-Other Tools: GitHub, Figma
+Frontend: React, Tailwind
+Backend: Express, Node.js  
+Database: Mongodb  
+Other Tools: Docker, Git, Github
 ```
 
 ---
