@@ -1,58 +1,69 @@
-# 🏆 Hackathon Submission – [Team Name]
+
+# 🏆 Hackathon Submission — Team JUNOON
 
 ## 👥 Team Information
 
 | Member Name | GitHub Username | Role |
-|--------------|----------------|------|
-| [Full Name] | [@username] | Team Lead |
-| [Full Name] | [@username] | Developer |
-| [Full Name] | [@username] | Designer |
-| [Full Name] | [@username] | [Role] |
+|-------------:|-----------------|:-----|
+| Tauha | @tahaaamir280-spec | Team Leader |
+| Rohan | @Rohanarain | ML Engineer |
+| Abdul Moiz | @abdulmoiz01001 | Web Developer |
 
-> The **Team Lead** is responsible for forking the repository, creating this folder, and adding all members as collaborators.
+> The **Team Leader** (Tauha) is responsible for forking the repository, creating this folder, and adding all members as collaborators.
 
 ---
 
 ## 🚀 Projects Overview
 
-Your team is required to complete **three projects**.  
-Each project should have its own folder inside your team directory as shown below:
+This submission includes the three required projects. Each project lives in its own folder beneath this team submission directory.
+
+Folder structure (example):
 
 ```
-/submission/team-[name]/
-├── project-1/
-├── project-2/
-└── project-3/
+./Submissions/Team_JUNOON/
+├─ Prediction-Patient-Hospital-Readmission/
+├─ Prediction-for-Smart-Agriculture-Machine-Failure/
+└─ inventroy-sales-management-system/
 ```
 
-Each folder should include the project code and a clear explanation inside it (like a GitHub project structure — description, screenshots, and usage can be written in the main code area or project description).
+| Project # | Project Title |
+|----------:|----------------|
+| 1 | Inventory And Sales Management System (
+|   | path: `./Prediction-Patient-Hospital-Readmission`) |
+| 2 | Prediction for Smart Agriculture Machine Failure (
+|   | path: `./Prediction-for-Smart-Agriculture-Machine-Failure`) |
+| 3 | Prediction Patient Hospital Readmission (
+|   | path: `./inventroy-sales-management-system.`) |
 
-| Project # | Project Title | 
-|------------|----------------|
-| 1 | [Project Title 1] | 
-| 2 | [Project Title 2] | 
-| 3 | [Project Title 3] |
+Notes:
+- The repository already contains `inventroy-sales-management-system` (MERN stack) under `inventroy-sales-management-system`.
+- The other two projects (Prediction for Smart Agriculture Machine Failure, Prediction Patient Hospital Readmission) should be added in folders with the names above.
 
 ---
 
-## 🧱 Tech Stack Overview
+## 🛠️ Tech Stack Overview
 
-List the main technologies and tools your team used across all projects.
+Main technologies used across projects:
 
 ```
-Example:
-Frontend: Flutter, React  
-Backend: Spring Boot, Node.js  
-Database: PostgreSQL  
-Other Tools: GitHub, Figma
+Frontend: React (MERN project)
+Backend: Node.js / Express (MERN)
+Database: MongoDB
+ML: Python (scikit-learn, pandas , numpy , seaborn , ML Models) for prediction projects
+Other Tools: GitHub, Vite (for client), Thunder CLient
 ```
 
 ---
 
-## 🏁 Submission Notes
+## ✅ Submission Notes
 
-✅ Folder structure followed  
-✅ Team info added  
-✅ 3 project folders created  
-✅ All members added as collaborators  
-✅ PR made to `submission` branch before deadline
+- Folder structure followed
+- Team info added
+- Projects list included
+- MERN-based web project present
+
+---
+
+If you want, I can also:
+- Create the three project folders (if missing) and add a README in each with a short description.
+- Add a brief README for Team JUNOON with run instructions for the MERN project.
