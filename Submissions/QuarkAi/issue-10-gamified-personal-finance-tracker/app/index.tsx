@@ -44,7 +44,7 @@ export default function SplashScreen() {
 
       if (hasSeenOnboarding === "true") {
        
-        // router.replace("/authscreen");
+        router.replace("/authscreen");
       } else {
        
         router.replace("/on-boarding");
@@ -65,7 +65,7 @@ export default function SplashScreen() {
             alignItems: "center",
           }}
         >
-          {/* App Icon with Glassmorphism */}
+
           <View className="mb-12">
             <View className={`w-28 h-28 rounded-3xl items-center justify-center ${
               theme === 'dark' 
@@ -103,7 +103,7 @@ export default function SplashScreen() {
             <Text className={`text-base text-center ${
               theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
             }`}>
-              AI-Powered • Smart Tracking
+              Level Up • Earn Rewards • Save Smart
             </Text>
           </View>
 
