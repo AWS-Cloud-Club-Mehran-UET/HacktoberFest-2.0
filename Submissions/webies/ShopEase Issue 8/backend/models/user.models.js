@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
 
 const userSchema = new mongoose.Schema({
+    
+    name: {
+      type : String,
+      required:true,
+    },
     email: {
         type: String,
         required: true,
@@ -12,7 +17,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false,
         select: false
+    },
+    roles :{
+        type:  String,
+        enum:["ADMIN","USER"],
+        default:"USER",
     }
+   
 }, { timestamps: true });
 
 userSchema.pre("save", async function (next) {

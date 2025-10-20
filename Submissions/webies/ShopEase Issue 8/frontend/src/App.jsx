@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
-import { Login, Signup, Home } from "@/pages";
-import PrivateRoute from "@/components/routes/PrivateRoute";
+import { Login, Signup, Home } from "./pages";
+import PrivateRoute from "./components/routes/PrivateRoute";
+import AddProductForm from "./pages/AddProducts";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           path="/"
           element={
             <PrivateRoute>
+              <Route path='/AddProducts' element={<AddProductForm/>} > </Route>
               <Home />
             </PrivateRoute>
           }
