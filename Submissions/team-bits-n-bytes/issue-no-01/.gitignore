@@ -1,0 +1,4 @@
+# Ignore data and output files
+smart-agri-failure/data/
+smart-agri-failure/outputs/
+*.csv
