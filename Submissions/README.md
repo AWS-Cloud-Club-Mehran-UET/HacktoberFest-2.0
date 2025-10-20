@@ -11,26 +11,17 @@ Your team is required to complete three projects.
 Each project should have its own folder inside your team directory as shown below:
 
 /submission/team-[TriCodeX]/
-├── project-1/
-├── project-2/
-└── project-3/
+├── finance-tracker/
+├── shopease/
+└── skillbridge/
 Each folder should include the project code and a clear explanation inside it (like a GitHub project structure — description, screenshots, and usage can be written in the main code area or project description).
 
 Project #	Project Title
-1	[Project Title 1]
-2	[Project Title 2]
-3	[Project Title 3]
+1	Gamified Finance Tracker
+2	ShopEase
+3	SkillBridge
 🧱 Tech Stack Overview
 List the main technologies and tools your team used across all projects.
 
-Example:
-Frontend: Flutter, React  
-Backend: Spring Boot, Node.js  
-Database: PostgreSQL  
-Other Tools: GitHub, Figma
-🏁 Submission Notes
-✅ Folder structure followed
-✅ Team info added
-✅ 3 project folders created
-✅ All members added as collaborators
-✅ PR made to submission branch before deadline
+React
+NodeJS
