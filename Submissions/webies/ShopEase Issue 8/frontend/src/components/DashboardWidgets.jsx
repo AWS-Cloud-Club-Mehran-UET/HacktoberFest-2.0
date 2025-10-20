@@ -66,7 +66,7 @@ const DashboardWidgets = () => {
           <div className='border-b border-gray-200 px-5 mt-2'>
             <ul className='flex gap-6 text-sm font-medium text-purple-600'>
               {tabs.map((tab) => (
-                <li
+                <li 
                   key={tab}
                   className={`pb-2 cursor-pointer ${
                     activeTab === tab

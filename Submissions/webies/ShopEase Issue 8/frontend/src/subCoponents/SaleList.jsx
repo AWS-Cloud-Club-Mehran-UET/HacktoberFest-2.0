@@ -93,6 +93,52 @@ const SaleList = () => {
     setOpenActionId(null);
   };
 
+  // ✅ CSV Download Function
+  const handleCSVDownload = () => {
+    if (filteredSales.length === 0) {
+      alert("No sales available to export!");
+      return;
+    }
+
+    const headers = [
+      "Date",
+      "Customer",
+      "Products",
+      "Payment Method",
+      "Subtotal",
+      "Discount",
+      "Grand Total",
+    ];
+
+    const rows = filteredSales.map((sale) => [
+      new Date(sale.createdAt).toLocaleDateString(),
+      sale.customerName,
+      sale.products
+        .map((p) => `${p.product?.productName} (${p.quantity}x$${p.priceAtSale})`)
+        .join("; "),
+      sale.paymentMethod,
+      sale.subTotal,
+      sale.totalDiscount || 0,
+      sale.grandTotal,
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((e) => e.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "Sales_List.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <motion.div
       className="p-6"
@@ -111,7 +157,7 @@ const SaleList = () => {
               onClick={() => navigate("/sale/add")}
               className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-3 sm:px-4 py-2 rounded-md text-sm sm:text-base"
             >
-              Sales List
+              + Add Sale
             </button>
           </div>
 
@@ -127,10 +173,11 @@ const SaleList = () => {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <button className="bg-rose-400 hover:bg-rose-500 text-white px-2 sm:px-3 py-1 rounded-md text-sm">
-                PDF
-              </button>
-              <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 sm:px-3 py-1 rounded-md text-sm">
+             
+              <button
+                onClick={handleCSVDownload}
+                className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 sm:px-3 py-1 rounded-md text-sm"
+              >
                 CSV
               </button>
             </div>
@@ -154,30 +201,14 @@ const SaleList = () => {
                       className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
                     />
                   </th>
-                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">
-                    Date
-                  </th>
-                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">
-                    Customer
-                  </th>
-                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">
-                    Products
-                  </th>
-                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">
-                    Payment Method
-                  </th>
-                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">
-                    Subtotal
-                  </th>
-                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">
-                    Discount
-                  </th>
-                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">
-                    Grand Total
-                  </th>
-                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">
-                    Action
-                  </th>
+                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">Date</th>
+                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">Customer</th>
+                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">Products</th>
+                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">Payment Method</th>
+                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">Subtotal</th>
+                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">Discount</th>
+                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">Grand Total</th>
+                  <th className="px-3 py-4 font-semibold text-gray-700 text-left">Action</th>
                 </tr>
               </thead>
 
@@ -202,8 +233,7 @@ const SaleList = () => {
                       <td className="px-3 py-4 text-sm text-gray-600">
                         {sale.products.map((p, index) => (
                           <div key={index}>
-                            {p.product?.productName} ({p.quantity} × $
-                            {p.priceAtSale})
+                            {p.product?.productName} ({p.quantity} × ${p.priceAtSale})
                           </div>
                         ))}
                       </td>
