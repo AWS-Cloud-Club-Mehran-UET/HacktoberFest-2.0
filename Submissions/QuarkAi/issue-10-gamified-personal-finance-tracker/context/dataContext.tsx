@@ -3,6 +3,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { Transaction, TransactionStats } from '../hooks/useTransaction'
 import { Wallet } from '../hooks/useWallet'
 import { supabase } from '../utils/supabase'
+import { useUserContext } from './userContext'
 
 interface DataContextProps {
 
@@ -57,8 +58,9 @@ const DataContext = createContext<DataContextProps>({
   refreshAll: async () => {},
 })
 
-export const DataProvider = ({ children }: { children: ReactNode }) => {
+export function DataProvider({ children }: { children: ReactNode }) {
   const { userId } = useAuth()
+  const { user, refreshUser, updateUserPoints } = useUserContext()
   
   // Wallet state
   const [wallets, setWallets] = useState<Wallet[]>([])
@@ -181,16 +183,21 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
       setWallets(data || [])
       
-      // Update selected wallet with fresh data
+      // Update selected wallet with fresh data - only update if necessary to prevent re-renders
       if (data && data.length > 0) {
         if (selectedWallet) {
           const updatedWallet = data.find(w => w.id === selectedWallet.id)
           if (updatedWallet) {
-            setSelectedWallet(updatedWallet)
+            // Only update if data actually changed to prevent unnecessary re-renders
+            if (JSON.stringify(updatedWallet) !== JSON.stringify(selectedWallet)) {
+              setSelectedWallet(updatedWallet)
+            }
           } else {
+            // Selected wallet was deleted, select first wallet
             setSelectedWallet(data[0])
           }
         } else {
+          // No wallet selected yet, select first one
           setSelectedWallet(data[0])
         }
       }
@@ -338,8 +345,48 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const uploadImage = async (imageUri: string): Promise<string | null> => {
+    try {
+      const fileExt = imageUri.split('.').pop() || 'jpg'
+      const fileName = `${userId}_${Date.now()}.${fileExt}`
+
+      try {
+        const response = await fetch(imageUri)
+        const blob = await response.blob()
+        
+        const { data, error } = await supabase.storage
+          .from('userimage')
+          .upload(fileName, blob, {
+            contentType: `image/${fileExt}`,
+            upsert: false,
+          })
+        
+        if (error) throw error
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('userimage')
+          .getPublicUrl(data.path)
+        
+        return publicUrl
+      } catch (uploadError) {
+        console.error('Error uploading image:', uploadError)
+        return null
+      }
+    } catch (err: any) {
+      console.error('Error preparing image upload:', err)
+      return null
+    }
+  }
+
   const createTransaction = async (transactionData: any) => {
     try {
+      setTransactionLoading(true)
+      
+      let imageUrl = null
+      if (transactionData.imageUri) {
+        imageUrl = await uploadImage(transactionData.imageUri)
+      }
+
       const { imageUri, ...dataToInsert } = transactionData
 
       const { data, error } = await supabase
@@ -348,6 +395,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
           {
             user_id: userId,
             ...dataToInsert,
+            image: imageUrl,
           },
         ])
         .select()
@@ -355,22 +403,71 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error
 
+      // Update user points and level for income transactions using userContext
+      if (transactionData.type === 'income') {
+        try {
+          await updateUserPoints(10)
+          // Refresh user to get updated points/level immediately
+          await refreshUser()
+        } catch (pointsError) {
+          console.error('Error updating points:', pointsError)
+        }
+      }
+
+      // Update wallet balance
+      if (selectedWallet) {
+        const balanceChange = transactionData.type === 'income' 
+          ? Number(transactionData.amount) 
+          : -Number(transactionData.amount)
+        
+        const newBalance = Number(selectedWallet.balance) + balanceChange
+
+        await supabase
+          .from('wallet')
+          .update({ balance: newBalance })
+          .eq('id', selectedWallet.id)
+          .eq('user_id', userId)
+        
+        // Optimistically update local state to prevent delays
+        setSelectedWallet({
+          ...selectedWallet,
+          balance: newBalance
+        })
+      }
+
+      // Optimistically add transaction to local state for immediate UI update
+      setTransactions(prev => [data, ...prev])
       
+      // Recalculate stats with new transaction
+      const updatedTransactions = [data, ...transactions]
+      calculateStats(updatedTransactions, selectedWallet?.balance)
+      
+      // Real-time subscriptions will sync in the background
+      // This ensures immediate UI feedback without navigation
       
       return data
     } catch (err: any) {
       console.error('Error creating transaction:', err)
       throw err
+    } finally {
+      setTransactionLoading(false)
     }
   }
 
   const updateTransaction = async (transactionId: number, updates: any) => {
     try {
+      setTransactionLoading(true)
+      
+      let imageUrl = updates.image
+      if (updates.imageUri) {
+        imageUrl = await uploadImage(updates.imageUri)
+      }
+
       const { imageUri, ...dataToUpdate } = updates
 
       const { data, error } = await supabase
         .from('transactions')
-        .update(dataToUpdate)
+        .update({ ...dataToUpdate, image: imageUrl })
         .eq('id', transactionId)
         .eq('user_id', userId)
         .select()
@@ -378,13 +475,23 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error
 
-      // Real-time subscription will automatically update the data
-      // No manual refresh needed - Supabase will trigger the subscription
+      // Optimistically update local state for immediate UI feedback
+      setTransactions(prev => 
+        prev.map(t => t.id === transactionId ? data : t)
+      )
+      
+      // Recalculate stats with updated transaction
+      const updatedTransactions = transactions.map(t => t.id === transactionId ? data : t)
+      calculateStats(updatedTransactions, selectedWallet?.balance)
+      
+      // Real-time subscription will sync in the background
       
       return data
     } catch (err: any) {
       console.error('Error updating transaction:', err)
       throw err
+    } finally {
+      setTransactionLoading(false)
     }
   }
 
@@ -398,7 +505,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error
 
+      // Optimistically remove from local state for immediate UI feedback
+      setTransactions(prev => prev.filter(t => t.id !== transactionId))
       
+      // Recalculate stats without deleted transaction
+      const updatedTransactions = transactions.filter(t => t.id !== transactionId)
+      calculateStats(updatedTransactions, selectedWallet?.balance)
+      
+      // Real-time subscription will sync in the background
     } catch (err: any) {
       console.error('Error deleting transaction:', err)
       throw err

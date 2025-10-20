@@ -11,31 +11,31 @@ import { useUserContext } from '@/context/userContext'
 import { useTransaction } from '@/hooks/useTransaction'
 import { Wallet } from '@/hooks/useWallet'
 import {
-  ArrowDownRight,
-  ArrowUpRight,
-  BarChart3,
-  Edit,
-  Moon,
-  Plus,
-  Repeat,
-  Settings,
-  Star,
-  Sun,
-  Trash2,
-  Trophy,
-  Wallet as WalletIcon,
-  Zap,
+    ArrowDownRight,
+    ArrowUpRight,
+    BarChart3,
+    Edit,
+    Moon,
+    Plus,
+    Repeat,
+    Settings,
+    Star,
+    Sun,
+    Trash2,
+    Trophy,
+    Wallet as WalletIcon,
+    Zap,
 } from 'lucide-react-native'
 import React, { useMemo, useState } from 'react'
 import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -128,13 +128,19 @@ export default function DashboardScreen() {
 
   const handleSaveWallet = async (data: any) => {
     try {
+      // Close modal first to prevent navigation context issues
+      setWalletModalVisible(false)
+      setEditingWallet(null)
+      
+      // Small delay to ensure modal is fully closed
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // Then create or update wallet
       if (editingWallet) {
         await updateWallet(editingWallet.id, data)
       } else {
         await createWallet(data)
       }
-      setEditingWallet(null)
-      setWalletModalVisible(false)
     } catch (error) {
       console.error('Error saving wallet:', error)
     }
@@ -142,8 +148,12 @@ export default function DashboardScreen() {
 
   const handleSaveTransaction = async (data: any) => {
     try {
-      await createTransaction(data)
+      // Close modal first to prevent navigation context issues
       setTransactionModalVisible(false)
+      // Small delay to ensure modal is fully closed
+      await new Promise(resolve => setTimeout(resolve, 100))
+      // Then create transaction
+      await createTransaction(data)
     } catch (error) {
       console.error('Error saving transaction:', error)
     }
