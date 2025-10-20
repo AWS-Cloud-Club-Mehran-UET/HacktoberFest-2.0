@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { Send, Bot, User, Loader2, Sparkles } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface Message {
   id: string
@@ -158,7 +160,35 @@ export default function AIAssistantPage() {
                         : 'bg-muted'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    {message.role === 'assistant' ? (
+                      <div className="text-sm prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-headings:mt-3 prose-headings:mb-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-code:text-xs prose-code:bg-background/50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-background/50 prose-pre:border">
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            h1: ({node, ...props}) => <h1 className="text-lg font-bold" {...props} />,
+                            h2: ({node, ...props}) => <h2 className="text-base font-bold" {...props} />,
+                            h3: ({node, ...props}) => <h3 className="text-sm font-bold" {...props} />,
+                            p: ({node, ...props}) => <p className="leading-relaxed" {...props} />,
+                            ul: ({node, ...props}) => <ul className="list-disc pl-4" {...props} />,
+                            ol: ({node, ...props}) => <ol className="list-decimal pl-4" {...props} />,
+                            li: ({node, ...props}) => <li className="leading-relaxed" {...props} />,
+                            code: ({node, inline, ...props}: any) => 
+                              inline ? (
+                                <code className="bg-background/50 px-1 py-0.5 rounded text-xs font-mono" {...props} />
+                              ) : (
+                                <code className="block bg-background/50 p-2 rounded text-xs font-mono overflow-x-auto" {...props} />
+                              ),
+                            strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
+                            em: ({node, ...props}) => <em className="italic" {...props} />,
+                            blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-primary/30 pl-4 italic" {...props} />,
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    )}
                     <p className="text-xs opacity-70 mt-1">
                       {message.timestamp.toLocaleTimeString()}
                     </p>
