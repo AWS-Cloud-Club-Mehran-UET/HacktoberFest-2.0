@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Login() {
+export default function Signup() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -17,7 +17,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/api/login", {
+      const res = await fetch("http://localhost:5000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -25,13 +25,10 @@ export default function Login() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Login failed");
+      if (!res.ok) throw new Error(data.message || "Signup failed");
 
-      // Save token
-      localStorage.setItem("token", data.token);
-
-      // Redirect to dashboard or home
-      navigate("/dashboard");
+      alert("Account created successfully! Please log in.");
+      navigate("/login");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,7 +42,7 @@ export default function Login() {
         onSubmit={handleSubmit}
         className="bg-white p-8 shadow-lg rounded-lg w-full max-w-sm"
       >
-        <h2 className="text-2xl font-semibold mb-6 text-center">Login</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center">Create Account</h2>
 
         {error && (
           <p className="text-red-600 text-sm text-center mb-3">{error}</p>
@@ -80,8 +77,18 @@ export default function Login() {
           disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Creating..." : "Sign Up"}
         </button>
+
+        <p className="text-sm text-center mt-4">
+          Already have an account?{" "}
+          <span
+            onClick={() => navigate("/login")}
+            className="text-blue-600 cursor-pointer hover:underline"
+          >
+            Login
+          </span>
+        </p>
       </form>
     </div>
   );
