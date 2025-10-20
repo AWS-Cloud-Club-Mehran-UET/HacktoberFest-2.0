@@ -4,9 +4,9 @@
 
 | Member Name | GitHub Username | Role |
 |--------------|----------------|------|
-| [Full Name] | [@username] | Team Lead |
-| [Full Name] | [@username] | Developer |
-| [Full Name] | [@username] | Designer |
+| [Syed Sayeel Abbas] | [@SyedSayeelAbbas] | Team Lead , Developer|
+| [Ahmed Memon] | [@AhmedMemon7x] | Developer,Designer |
+| [Haroon Zulfiqar Khan] | [@HaroonZulfiqar] | Testing |
 | [Full Name] | [@username] | [Role] |
 
 > The **Team Lead** is responsible for forking the repository, creating this folder, and adding all members as collaborators.

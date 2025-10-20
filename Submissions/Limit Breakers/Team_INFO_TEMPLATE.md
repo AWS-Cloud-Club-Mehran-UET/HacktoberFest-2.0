@@ -19,19 +19,19 @@ Your team is required to complete **three projects**.
 Each project should have its own folder inside your team directory as shown below:
 
 ```
-/submission/team-[name]/
-├── project-1/
-├── project-2/
-└── project-3/
+/submission/team-[LimitBreakers]/
+├── project-ShopeEase/
+├── project-SmartCity/
+└── project-Ecommerce Store Senario/
 ```
 
 Each folder should include the project code and a clear explanation inside it (like a GitHub project structure — description, screenshots, and usage can be written in the main code area or project description).
 
 | Project # | Project Title | 
 |------------|----------------|
-| 1 | [Project Title 1] | 
-| 2 | [Project Title 2] | 
-| 3 | [Project Title 3] |
+| 1 | [ShopeEase] | 
+| 2 | [SmartCity] | 
+| 3 | [Ecommerce Store Senario] |
 
 ---
 
