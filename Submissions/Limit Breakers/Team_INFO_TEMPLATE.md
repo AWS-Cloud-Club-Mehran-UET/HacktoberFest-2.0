@@ -4,10 +4,9 @@
 
 | Member Name | GitHub Username | Role |
 |--------------|----------------|------|
-| [Full Name] | [@username] | Team Lead |
-| [Full Name] | [@username] | Developer |
-| [Full Name] | [@username] | Designer |
-| [Full Name] | [@username] | [Role] |
+| [Syed Sayeel Abbas] | [@SyedSayeelAbbas] | Team Lead , Developer|
+| [Ahmed Memon] | [@AhmedMemon7x] | Developer |
+| [Harron Zulfiqar] | [@HaroonZulfiqar] | Designer |
 
 > The **Team Lead** is responsible for forking the repository, creating this folder, and adding all members as collaborators.
 
@@ -41,10 +40,10 @@ List the main technologies and tools your team used across all projects.
 
 ```
 Example:
-Frontend: Flutter, React  
-Backend: Spring Boot, Node.js  
-Database: PostgreSQL  
-Other Tools: GitHub, Figma
+Frontend: html,css,Js
+Database: LocalStorage
+DSA:Java
+Other Tools: GitHub,Nano Banana
 ```
 
 ---
