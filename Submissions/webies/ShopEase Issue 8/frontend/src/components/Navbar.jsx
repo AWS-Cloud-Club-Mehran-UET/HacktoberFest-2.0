@@ -52,7 +52,8 @@ const Navbar = ({ onMenuClick }) => {
                     className='flex items-center pl-1 hover:text-purple-700 cursor-pointer transition select-none gap-1'
                 >
                     <IoPersonOutline className="text-2xl" />
-                    Admin
+                    
+                    Welcome
                  </div>
 
                 {dropdownOpen && (

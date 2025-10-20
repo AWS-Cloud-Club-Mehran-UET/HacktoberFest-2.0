@@ -1,30 +1,19 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import './SideBar.css';
 import { useNavigate } from 'react-router-dom';
 import { IoIosArrowDown, IoIosArrowForward, IoIosClose } from "react-icons/io";
 
-
-import { BiMenuAltLeft, BiPurchaseTag } from 'react-icons/bi';
 import { BsCart2 } from 'react-icons/bs';
-
-import { CiSettings } from 'react-icons/ci';
-import { RiDashboard2Line } from "react-icons/ri";
-
 
 const navItems = [
   {
-    label: 'Dashboard',
-    path: '/dashboard',
-    icon: <RiDashboard2Line />,
-  },
-  {
-    label: 'Product',
-    icon: <BiMenuAltLeft />,
-    sub: [
-      { label: 'Add Product', path: '/product/add' },
-      { label: 'Product List', path: '/product/list' },
-    ],
-  },
+      label: 'Sale',
+      icon: <BsCart2 />,
+      sub: [
+        { label: 'Sale List', path: '/cashier/sale/list' },
+        { label: 'Add Sale', path: '/cashier/sale/add' },
+      ],
+    },
   
   
 ];
