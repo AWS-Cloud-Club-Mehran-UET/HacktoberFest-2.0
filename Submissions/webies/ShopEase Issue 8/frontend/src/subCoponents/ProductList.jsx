@@ -2,8 +2,6 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ContextApi } from '../components/ContextApi';
 import { motion } from 'framer-motion';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -122,35 +120,7 @@ const ProductList = () => {
     document.body.removeChild(link);
   };
 
-  // ✅ DOWNLOAD PDF
-  const handlePDFDownload = () => {
-    if (filteredProducts.length === 0) {
-      alert("No products available to export!");
-      return;
-    }
 
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("Product List", 14, 15);
-
-    const tableData = filteredProducts.map(p => [
-      p.productName,
-      p.SKU,
-      p.category,
-      p.quantity,
-      `$${p.productPrice}`
-    ]);
-
-    doc.autoTable({
-      startY: 25,
-      head: [["Product Name", "SKU", "Category", "Quantity", "Price"]],
-      body: tableData,
-      styles: { fontSize: 10 },
-      theme: "striped"
-    });
-
-    doc.save("Product_List.pdf");
-  };
 
   return (
     <motion.div
@@ -186,12 +156,7 @@ const ProductList = () => {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <button 
-                onClick={handlePDFDownload}
-                className="bg-rose-400 hover:bg-rose-500 text-white px-2 sm:px-3 py-1 rounded-md text-sm"
-              >
-                PDF
-              </button>
+             
               <button 
                 onClick={handleCSVDownload}
                 className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 sm:px-3 py-1 rounded-md text-sm"

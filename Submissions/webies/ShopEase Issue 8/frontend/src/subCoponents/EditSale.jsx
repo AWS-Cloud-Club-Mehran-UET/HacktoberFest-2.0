@@ -1,491 +1,313 @@
-import React, { useState, useContext } from "react";
-import { Trash2 } from 'lucide-react';
-
+import React, { useState, useContext, useEffect } from "react";
+import { Trash2 } from "lucide-react";
 import { ContextApi } from "../components/ContextApi";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 const EditSale = () => {
   const [formData, setFormData] = useState({
-    customer: "",
-    warehouse: "",
-    biller: "",
-    orderTax: 0,
-    orderDiscount: 0,
-    shippingCost: 0,
-    saleStatus: "Completed",
-    paymentStatus: "Pending",
-    saleNote: "",
-    staffNote: "",
+    customerName: "",
+    paymentMethod: "Cash",
+    subTotal: 0,
+    totalDiscount: 0,
+    grandTotal: 0,
   });
 
   const { id } = useParams();
-  const { products, customers } = useContext(ContextApi);
-  const [productSearch, setProductSearch] = useState('');
+  const { products } = useContext(ContextApi);
+  const [productSearch, setProductSearch] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [quantities, setQuantities] = useState({});
   const navigate = useNavigate();
 
-  const warehouses = ['Main Warehouse', 'Secondary Warehouse', 'Backup Warehouse'];
-  const taxOptions = [
-    { label: 'No Tax', value: 0 },
-    { label: 'VAT 5%', value: 5 },
-    { label: 'VAT 10%', value: 10 },
-    { label: 'VAT 15%', value: 15 },
-  ];
+  useEffect(() => {
+    if (id) {
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/sales/${id}`)
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          setFormData({
+            customerName: data.customerName,
+            paymentMethod: data.paymentMethod,
+            subTotal: data.subTotal,
+            totalDiscount: data.totalDiscount,
+            grandTotal: data.grandTotal,
+          });
+
+          const formattedProducts = data.products.map((p) => ({
+            ...p.product,
+            quantity: p.quantity,
+            priceAtSale: p.priceAtSale,
+            discount: p.discount,
+          }));
+          setSelectedProducts(formattedProducts);
+        })
+        .catch((err) => console.error("Error fetching sale data:", err));
+    }
+  }, [id]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const numericFields = ['orderTax', 'orderDiscount', 'shippingCost'];
-    const processedValue = numericFields.includes(name) ? Number(value) : value;
-    setFormData(prev => ({ ...prev, [name]: processedValue }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const addProduct = (product) => {
-    if (!selectedProducts.find(p => p._id === product._id)) {
-      setSelectedProducts(prev => [...prev, product]);
-      setQuantities(prev => ({ ...prev, [product._id]: 1 }));
+    if (!selectedProducts.find((p) => p._id === product._id)) {
+      setSelectedProducts((prev) => [
+        ...prev,
+        { ...product, quantity: 1, discount: 0 },
+      ]);
     }
   };
 
   const removeProduct = (id) => {
-    setSelectedProducts(prev => prev.filter(product => product._id !== id));
-    setQuantities(prev => {
-      const newQuantities = { ...prev };
-      delete newQuantities[id];
-      return newQuantities;
-    });
+    setSelectedProducts((prev) => prev.filter((p) => p._id !== id));
   };
 
-  const updateQuantity = (id, newQuantity) => {
-    setQuantities(prev => ({ ...prev, [id]: newQuantity }));
+  const updateQuantity = (id, qty) => {
+    setSelectedProducts((prev) =>
+      prev.map((p) => (p._id === id ? { ...p, quantity: qty } : p))
+    );
   };
 
-  // Calculation Functions
-  const calculateItems = () => {
-    return selectedProducts.length;
+  const updateDiscount = (id, disc) => {
+    setSelectedProducts((prev) =>
+      prev.map((p) => (p._id === id ? { ...p, discount: disc } : p))
+    );
   };
 
-  const calculateSubtotal = (product) => {
-    const quantity = quantities[product._id] || 0;
-    const price = product.productPrice || 0;
-    return quantity * price;
-  };
+  const calculateSubtotal = (p) =>
+    (p.priceAtSale || p.productPrice || 0) * (p.quantity || 0) -
+    (p.discount || 0);
 
-  const calculateTotal = () => {
-    return selectedProducts.reduce((sum, product) => {
-      return sum + calculateSubtotal(product);
-    }, 0);
-  };
+  const calculateSubTotal = () =>
+    selectedProducts.reduce((sum, p) => sum + calculateSubtotal(p), 0);
 
-  const calculateGrandTotal = () => {
-    const subtotal = calculateTotal();
-    const orderTaxAmount = subtotal * ((formData.orderTax || 0) / 100);
-    const finalTotal = (subtotal || 0) + (orderTaxAmount || 0) - (formData.orderDiscount || 0) + (formData.shippingCost || 0);
-    return finalTotal;
-  };
-
-  useEffect(() => {
-    if (id) {
-      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/sales/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then(data => {
-          setFormData({
-            customer: data.customer,
-            warehouse: data.warehouse,
-            biller: data.biller,
-            orderTax: data.orderTax,
-            orderDiscount: data.orderDiscount,
-            shippingCost: data.shippingCost,
-            saleStatus: data.saleStatus,
-            paymentStatus: data.paymentStatus,
-            saleNote: data.saleNote,
-            staffNote: data.staffNote,
-          });
-
-          setSelectedProducts(data.products);
-          const newQuantities = {};
-          data.products.forEach(p => {
-            newQuantities[p._id] = p.quantity;
-          });
-          setQuantities(newQuantities);
-        })
-        .catch(err => console.error("Error fetching sale data:", err));
-    }
-  }, [id]);
+  const calculateGrandTotal = () =>
+    calculateSubTotal() - formData.totalDiscount;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const saleData = {
-        ...formData,
-        products: selectedProducts.map(p => ({
-          _id: p._id,
-          productName: p.productName,
-          quantity: quantities[p._id],
-          unitPrice: p.productPrice,
-          subTotal: calculateSubtotal(p),
-        })),
-        totalAmount: calculateGrandTotal(),
-      };
 
+    const saleData = {
+      customerName: formData.customerName,
+      paymentMethod: formData.paymentMethod,
+      subTotal: calculateSubTotal(),
+      totalDiscount: Number(formData.totalDiscount) || 0,
+      grandTotal: calculateGrandTotal(),
+      products: selectedProducts.map((p) => ({
+        product: p._id,
+        quantity: p.quantity,
+        priceAtSale: p.priceAtSale || p.productPrice,
+        discount: p.discount || 0,
+        total: calculateSubtotal(p),
+      })),
+    };
+
+    try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/sales/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(saleData)
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(saleData),
       });
-      const data = await res.json();
-      console.log(data);
-      navigate('/sale/list');
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      alert("Sale updated successfully!");
+      navigate("/sale/list");
     } catch (err) {
-      console.log(err);
+      console.error("Error updating sale:", err);
+      alert("Failed to update sale!");
     }
-    alert('Sales form updated');
   };
 
   return (
-    <>
-      <div className="p-4 sm:p-6 lg:p-8">
-        <motion.div
-          className="max-w-7xl mx-auto p-4 sm:p-6 rounded-lg shadow-md bg-white"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-xl sm:text-2xl font-semibold mb-4">Edit Sale</h1>
-          <p className="mb-4 text-sm text-gray-600">The field labels marked with * are required input fields.</p>
-
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="customer">
-                  Customer *
-                </label>
-                <select
-                  id="customer"
-                  name="customer"
-                  value={formData.customer}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select customer...</option>
-                  {customers.map(cus => (
-                    <option key={cus.id} value={cus.name}>{cus.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="warehouse">
-                  Warehouse *
-                </label>
-                <select
-                  id="warehouse"
-                  name="warehouse"
-                  value={formData.warehouse}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select warehouse...</option>
-                  {warehouses.map((warehouse) => (
-                    <option key={warehouse} value={warehouse}>{warehouse}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="biller">
-                  Biller *
-                </label>
-                <select
-                  id="biller"
-                  name="biller"
-                  value={formData.biller}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select Biller...</option>
-                  <option value="Excel communication">Excel communication</option>
-                </select>
-              </div>
-              {/* New Status Fields */}
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="saleStatus">
-                  Sale Status
-                </label>
-                <select
-                  id="saleStatus"
-                  name="saleStatus"
-                  value={formData.saleStatus}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="Completed">Completed</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Canceled">Canceled</option>
-                </select>
-              </div>
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="paymentStatus">
-                  Payment Status
-                </label>
-                <select
-                  id="paymentStatus"
-                  name="paymentStatus"
-                  value={formData.paymentStatus}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Due">Due</option>
-                  <option value="Paid">Paid</option>
-                </select>
-              </div>
-            </div>
-
+    <div className="p-4 sm:p-6 lg:p-8">
+      <motion.div
+        className="max-w-7xl mx-auto p-4 sm:p-6 rounded-lg shadow-md bg-white border border-gray-200"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-2xl font-semibold mb-4 text-gray-800">Edit Sale</h1>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Customer & Payment */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block mb-1 font-medium">Select Product</label>
-              <div className="flex items-center border border-gray-300 rounded-md bg-gray-50">
-                <div className="px-3 py-2 border-r">
-                  <div className="w-6 h-6 bg-gray-300"></div>
-                </div>
-                <input
-                  type="text"
-                  value={productSearch}
-                  onChange={(e) => setProductSearch(e.target.value)}
-                  placeholder="Please type product code or name..."
-                  className="w-full px-3 py-2 text-sm bg-transparent focus:outline-none"
-                />
-              </div>
-
-              {productSearch && (
-                <div className="mt-2 border border-gray-300 rounded-md max-h-48 overflow-y-auto">
-                  {products
-                    .filter(p =>
-                      p.productName.toLowerCase().includes(productSearch.toLowerCase()) ||
-                      p.productCode.toLowerCase().includes(productSearch.toLowerCase())
-                    )
-                    .map(product => (
-                      <div
-                        key={product._id}
-                        onClick={() => {
-                          addProduct(product);
-                          setProductSearch('');
-                        }}
-                        className="p-2 cursor-pointer hover:bg-gray-100"
-                      >
-                        {product.productName} ({product.productCode})
-                      </div>
-                    ))}
-                </div>
-              )}
+              <label className="block font-medium mb-1 text-gray-700">
+                Customer Name *
+              </label>
+              <input
+                type="text"
+                name="customerName"
+                value={formData.customerName}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-400 focus:outline-none"
+                required
+              />
             </div>
-
             <div>
-              <h3 className="text-sm font-medium mb-2">Order Table *</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse border border-gray-300">
-                  <thead>
-                    <tr className="text-left bg-gray-100 border-b border-gray-300">
-                      <th className="py-2 px-2 border border-gray-300">Name</th>
-                      <th className="px-2 border border-gray-300">Code</th>
-                      <th className="px-2 border border-gray-300">Quantity</th>
-                      <th className="px-2 border border-gray-300">Net Unit Price</th>
-                      <th className="px-2 border border-gray-300">Discount</th>
-                      <th className="px-2 border border-gray-300">Tax</th>
-                      <th className="px-2 border border-gray-300">SubTotal</th>
-                      <th className="px-2 border border-gray-300">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedProducts.length > 0 ? (
-                      selectedProducts.map((product) => (
-                        <tr key={product._id}>
-                          <td className="px-4 py-3">
-                            <span className="block px-2 py-1 text-gray-900">{product.productName}</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="block px-2 py-1 text-gray-900">{product.productCode}</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <input
-                              type="number"
-                              min="1"
-                              value={quantities[product._id] || 1}
-                              onChange={(e) => updateQuantity(product._id, parseInt(e.target.value))}
-                              className="w-20 p-1 border rounded"
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="block px-2 py-1 text-gray-900">{product.productPrice}</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="block px-2 py-1 text-gray-900">0</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="block px-2 py-1 text-gray-900">0</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="text-sm font-medium text-gray-900">
-                              {(calculateSubtotal(product) || 0).toFixed(2)}
-                            </span>
-                          </td>
-                          <td className="px-2">
-                            <div onClick={() => removeProduct(product._id)} className='flex gap-1 py-1 justify-center rounded items-center bg-red-400 cursor-pointer'>
-                              <button type="button">Delete</button>
-                              <span><Trash2 className="w-4 h-4" /></span>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="8" className="text-center py-4 text-gray-500">
-                          No products selected.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                  <tfoot>
-                    <tr className="font-semibold bg-gray-100 border-t border-gray-300 text-center">
-                      <td colSpan="2" className="px-2 py-2 border border-gray-300 text-left">Total</td>
-                      <td className="px-2 border border-gray-300">
-                        {selectedProducts.reduce((sum, p) => sum + (quantities[p._id] || 0), 0)}
-                      </td>
-                      <td colSpan="2" className="px-2 border border-gray-300">0.00</td>
-                      <td className="px-2 border border-gray-300">0.00</td>
-                      <td className="px-2 border border-gray-300">{(calculateTotal() || 0).toFixed(2)}</td>
-                      <td className="px-2 border border-gray-300"></td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="orderTax">
-                  Order Tax
-                </label>
-                <select
-                  id="orderTax"
-                  name="orderTax"
-                  value={formData.orderTax}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  {taxOptions.map(tax => (
-                    <option key={tax.value} value={tax.value}>{tax.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="orderDiscount">
-                  Order Discount
-                </label>
-                <input
-                  type="number"
-                  id="orderDiscount"
-                  name="orderDiscount"
-                  value={formData.orderDiscount}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="shippingCost">
-                  Shipping Cost
-                </label>
-                <input
-                  type="number"
-                  id="shippingCost"
-                  name="shippingCost"
-                  value={formData.shippingCost}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="saleNote">
-                  Sale Note
-                </label>
-                <textarea
-                  id="saleNote"
-                  name="saleNote"
-                  value={formData.saleNote}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block mb-1 font-medium" htmlFor="staffNote">
-                  Staff Note
-                </label>
-                <textarea
-                  id="staffNote"
-                  name="staffNote"
-                  value={formData.staffNote}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Final Summary Section */}
-            <div className="bg-gray-100 p-4 rounded-md mt-6 border border-gray-300">
-              <h3 className="text-lg font-semibold mb-2">Sale Summary</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm font-medium">
-                <div className="col-span-1 text-gray-700">Items</div>
-                <div className="col-span-1 text-right font-bold">{calculateItems()}</div>
-
-                <div className="col-span-1 text-gray-700">Total</div>
-                <div className="col-span-1 text-right font-bold">{(calculateTotal() || 0).toFixed(2)}</div>
-
-                <div className="col-span-1 text-gray-700">Order Tax ({formData.orderTax}%)</div>
-                <div className="col-span-1 text-right font-bold">{(calculateTotal() * (formData.orderTax / 100)).toFixed(2)}</div>
-
-                <div className="col-span-1 text-gray-700">Order Discount</div>
-                <div className="col-span-1 text-right font-bold">{(formData.orderDiscount || 0).toFixed(2)}</div>
-
-                <div className="col-span-1 text-gray-700">Shipping Cost</div>
-                <div className="col-span-1 text-right font-bold">{(formData.shippingCost || 0).toFixed(2)}</div>
-
-                <div className="col-span-2 border-t border-gray-400 my-2"></div>
-
-                <div className="col-span-1 text-gray-900 text-lg">Grand Total</div>
-                <div className="col-span-1 text-right text-lg font-bold text-purple-600">{(calculateGrandTotal() || 0).toFixed(2)}</div>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <button
-                type="submit"
-                className="bg-purple-600 text-white px-6 py-3 rounded-md hover:bg-purple-700 transition-colors duration-200"
+              <label className="block font-medium mb-1 text-gray-700">
+                Payment Method
+              </label>
+              <select
+                name="paymentMethod"
+                value={formData.paymentMethod}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-400 focus:outline-none"
               >
-                Submit
-              </button>
+                <option value="Cash">Cash</option>
+                <option value="Card">Card</option>
+                <option value="Online">Online</option>
+              </select>
             </div>
-          </form>
-        </motion.div>
-      </div>
-    </>
+          </div>
+
+          {/* Product Search */}
+          <div>
+            <label className="block mb-2 font-medium text-gray-700">
+              Add Product
+            </label>
+            <input
+              type="text"
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+              placeholder="Search by product name or SKU..."
+              className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-purple-400 focus:outline-none"
+            />
+            {productSearch && (
+              <div className="border border-gray-200 mt-2 max-h-40 overflow-y-auto rounded-md bg-white shadow-sm">
+                {products
+                  ?.filter(
+                    (p) =>
+                      p.productName
+                        ?.toLowerCase()
+                        .includes(productSearch.toLowerCase()) ||
+                      p.SKU?.toLowerCase().includes(productSearch.toLowerCase())
+                  )
+                  .map((product) => (
+                    <div
+                      key={product._id}
+                      onClick={() => {
+                        addProduct(product);
+                        setProductSearch("");
+                      }}
+                      className="p-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100"
+                    >
+                      {product.productName} ({product.SKU})
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Product Table */}
+          <div className="overflow-x-auto mt-4">
+            <table className="w-full text-sm border border-gray-200 rounded-md">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-3 py-2 border border-gray-200">Product</th>
+                  <th className="px-3 py-2 border border-gray-200">Quantity</th>
+                  <th className="px-3 py-2 border border-gray-200">Price</th>
+                  <th className="px-3 py-2 border border-gray-200">Discount</th>
+                  <th className="px-3 py-2 border border-gray-200">Total</th>
+                  <th className="px-3 py-2 border border-gray-200">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedProducts.length > 0 ? (
+                  selectedProducts.map((p) => (
+                    <tr key={p._id} className="hover:bg-gray-50">
+                      <td className="border border-gray-200 px-2 py-2">
+                        {p.productName}
+                      </td>
+                      <td className="border border-gray-200 px-2 py-2">
+                        <input
+                          type="number"
+                          value={p.quantity || 1}
+                          onChange={(e) =>
+                            updateQuantity(p._id, Number(e.target.value))
+                          }
+                          className="w-16 border border-gray-300 rounded p-1"
+                        />
+                      </td>
+                      <td className="border border-gray-200 px-2 py-2">
+                        {p.priceAtSale || p.productPrice}
+                      </td>
+                      <td className="border border-gray-200 px-2 py-2">
+                        <input
+                          type="number"
+                          value={p.discount || 0}
+                          onChange={(e) =>
+                            updateDiscount(p._id, Number(e.target.value))
+                          }
+                          className="w-16 border border-gray-300 rounded p-1"
+                        />
+                      </td>
+                      <td className="border border-gray-200 px-2 py-2">
+                        {calculateSubtotal(p).toFixed(2)}
+                      </td>
+                      <td className="border border-gray-200 px-2 py-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => removeProduct(p._id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="text-center py-3 text-gray-400 border border-gray-200"
+                    >
+                      No products selected
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Summary */}
+          <div className="mt-6 bg-gray-50 p-4 rounded-md border border-gray-200">
+            <h3 className="text-lg font-semibold mb-2 text-gray-800">Summary</h3>
+            <p className="text-gray-700">
+              Subtotal: <strong>{calculateSubTotal().toFixed(2)}</strong>
+            </p>
+            <div className="flex items-center mt-2">
+              <label className="mr-2 font-medium text-gray-700">
+                Total Discount:
+              </label>
+              <input
+                type="number"
+                name="totalDiscount"
+                value={formData.totalDiscount}
+                onChange={handleInputChange}
+                className="border border-gray-300 rounded p-1 w-24 focus:ring-2 focus:ring-purple-400 focus:outline-none"
+              />
+            </div>
+            <p className="mt-2 text-lg font-bold text-purple-600">
+              Grand Total: {calculateGrandTotal().toFixed(2)}
+            </p>
+          </div>
+
+          {/* Submit */}
+          <div className="mt-6">
+            <button
+              type="submit"
+              className="bg-purple-600 text-white px-6 py-3 rounded-md hover:bg-purple-700 transition"
+            >
+              Update Sale
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
   );
 };
 
