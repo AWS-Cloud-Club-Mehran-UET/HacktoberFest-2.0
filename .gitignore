@@ -1,29 +1,10 @@
-# backend
-/Submissions/codeFront/SkillBridge/backend/node_modules
-/Submissions/codeFront/SkillBridge/backend/.env
-/Submissions/codeFront/SkillBridge/backend/.prettierrc
+
+/.idea/
 
 
-# Frontend
-/Submissions/codeFront/SkillBridge/frontend/.env
-/Submissions/codeFront/SkillBridge/frontend/node_modules
-/Submissions/codeFront/SkillBridge/frontend/logs
-/Submissions/codeFront/SkillBridge/frontend/*.log
-/Submissions/codeFront/SkillBridge/frontend/npm-debug.log*
+/.mvn/
 
-/Submissions/codeFront/SkillBridge/frontend/dist
-/Submissions/codeFront/SkillBridge/frontend/dist-ssr
-/Submissions/codeFront/SkillBridge/frontend/*.local
+/target/
 
-# admin
-/Submissions/codeFront/SkillBridge/admin/node_modules
-/Submissions/codeFront/SkillBridge/admin/.env
 
-# Logs
-/Submissions/codeFront/SkillBridge/admin/logs
-/Submissions/codeFront/SkillBridge/admin/*.log
-/Submissions/codeFront/SkillBridge/admin/npm-debug.log*
-
-/Submissions/codeFront/SkillBridge/admin/dist
-/Submissions/codeFront/SkillBridge/admin/dist-ssr
-/Submissions/codeFront/SkillBridge/admin/*.local
+xgb_readmission_model.pkl
