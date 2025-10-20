@@ -58,7 +58,6 @@ model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train_res, y_train_res)
 
 # Save model and scaler
-joblib.dump(model, "machine_failure_model.pkl")
-joblib.dump(scaler, "scaler.pkl")
+joblib.dump(model, "model.pkl")
 
 print("Model and scaler saved successfully.")
