@@ -1,13 +1,13 @@
-# 🏆 Hackathon Submission – [Team Name]
+# 🏆 Hackathon Submission – Data Drifters
 
 ## 👥 Team Information
 
 | Member Name | GitHub Username | Role |
 |--------------|----------------|------|
-| [Full Name] | [@username] | Team Lead |
-| [Full Name] | [@username] | Developer |
-| [Full Name] | [@username] | Designer |
-| [Full Name] | [@username] | [Role] |
+| Muhammad Saim | [@M-Saim786] | Team Lead |
+| Muhammad Hussain | [@AiguyHussain] | Data Scientist |
+<!-- | [Full Name] | [@username] | Designer |
+| [Full Name] | [@username] | [Role] | -->
 
 > The **Team Lead** is responsible for forking the repository, creating this folder, and adding all members as collaborators.
 
@@ -19,7 +19,7 @@ Your team is required to complete **three projects**.
 Each project should have its own folder inside your team directory as shown below:
 
 ```
-/submission/team-[name]/
+/submission/team-data-drifters/
 ├── project-1/
 ├── project-2/
 └── project-3/
@@ -29,7 +29,7 @@ Each folder should include the project code and a clear explanation inside it (l
 
 | Project # | Project Title | 
 |------------|----------------|
-| 1 | [Project Title 1] | 
+| 1 | Skill Bridge | 
 | 2 | [Project Title 2] | 
 | 3 | [Project Title 3] |
 
@@ -41,9 +41,9 @@ List the main technologies and tools your team used across all projects.
 
 ```
 Example:
-Frontend: Flutter, React  
-Backend: Spring Boot, Node.js  
-Database: PostgreSQL  
+Frontend:  React and Next js  
+Backend: Node.js and Express.js  
+Database: MongoDB and PostgreSQL
 Other Tools: GitHub, Figma
 ```
 
