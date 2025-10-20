@@ -1,4 +1,4 @@
-# 🏆 Hackathon Submission – [Team Name]
+# 🏆 Hackathon Submission – [Tech Titans]
 
 ## 👥 Team Information
 
