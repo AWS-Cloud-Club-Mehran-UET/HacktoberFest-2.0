@@ -4,9 +4,9 @@
 
 | Member Name | GitHub Username | Role |
 |--------------|----------------|------|
-| [Syed Sayeel Abbas] | [@SyedSayeelAbbas] | Team Lead , Developer|
-| [Ahmed Memon] | [@AhmedMemon7x] | Developer,Designer |
-| [Haroon Zulfiqar Khan] | [@HaroonZulfiqar] | Testing |
+| [Full Name] | [@username] | Team Lead |
+| [Full Name] | [@username] | Developer |
+| [Full Name] | [@username] | Designer |
 | [Full Name] | [@username] | [Role] |
 
 > The **Team Lead** is responsible for forking the repository, creating this folder, and adding all members as collaborators.
@@ -56,3 +56,4 @@ Other Tools: GitHub, Figma
 ✅ 3 project folders created  
 ✅ All members added as collaborators  
 ✅ PR made to `submission` branch before deadline
+
