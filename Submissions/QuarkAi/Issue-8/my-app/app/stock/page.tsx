@@ -90,6 +90,14 @@ export default function StockManagementPage() {
     }
   }, [searchQuery, products])
 
+  const getLowStockProducts = () => {
+    return filteredProducts.filter((p) => p.quantity <= p.low_stock_threshold)
+  }
+
+  const getRegularStockProducts = () => {
+    return filteredProducts.filter((p) => p.quantity > p.low_stock_threshold)
+  }
+
   async function fetchProducts() {
     try {
       const { data, error } = await supabase
@@ -306,7 +314,86 @@ export default function StockManagementPage() {
           </CardHeader>
         </Card>
 
-        {/* Products List */}
+        {/* Low Stock Products */}
+        {!loading && getLowStockProducts().length > 0 && (
+          <Card className="border-destructive">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-destructive" />
+                <div>
+                  <CardTitle className="text-destructive">Low Stock Alert</CardTitle>
+                  <CardDescription>
+                    {getLowStockProducts().length} {getLowStockProducts().length === 1 ? 'product needs' : 'products need'} immediate restocking
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {getLowStockProducts().map((product) => (
+                  <Card key={product.id} className="overflow-hidden border-destructive/50 bg-destructive/5">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold truncate">{product.name}</h3>
+                            <Badge variant="destructive" className="text-xs">
+                              Low Stock
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                            <span>SKU: {product.sku}</span>
+                            <span>•</span>
+                            <span>{product.category}</span>
+                            <span>•</span>
+                            <span className="font-medium text-destructive">
+                              Only {product.quantity} units left (threshold: {product.low_stock_threshold})
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openHistorySheet(product)}
+                            title="View stock history"
+                          >
+                            <History className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => openStockSheet(product)}
+                            disabled={!isAdmin}
+                            className="bg-destructive hover:bg-destructive/90"
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Restock Now
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedProduct(product)
+                              setFormData({ ...formData, type: 'remove' })
+                              setIsSheetOpen(true)
+                            }}
+                            disabled={!isAdmin || product.quantity === 0}
+                          >
+                            <Minus className="h-4 w-4 mr-1" />
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Regular Stock Products */}
         {loading ? (
           <Card>
             <CardContent className="flex items-center justify-center py-10">
@@ -316,9 +403,9 @@ export default function StockManagementPage() {
         ) : (
           <Card>
             <CardHeader>
-              <CardTitle>Products</CardTitle>
+              <CardTitle>All Products</CardTitle>
               <CardDescription>
-                {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
+                {getRegularStockProducts().length} {getRegularStockProducts().length === 1 ? 'product' : 'products'} with adequate stock
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -330,9 +417,17 @@ export default function StockManagementPage() {
                     {searchQuery ? 'Try a different search query' : 'Add products first'}
                   </p>
                 </div>
+              ) : getRegularStockProducts().length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Package2 className="h-12 w-12 mb-3 text-muted-foreground" />
+                  <p className="text-muted-foreground">All products are low on stock</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Please restock the items above
+                  </p>
+                </div>
               ) : (
                 <div className="space-y-4">
-                  {filteredProducts.map((product) => (
+                  {getRegularStockProducts().map((product) => (
                     <Card key={product.id} className="overflow-hidden">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between gap-4">
