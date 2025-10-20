@@ -25,6 +25,34 @@ export const useUserHook = () => {
     }
   }, [isSignedIn, userId, clerkUser])
 
+  // Real-time subscription for user updates
+  useEffect(() => {
+    if (!userId) return
+
+    const channel = supabase
+      .channel(`user-changes-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'users',
+          filter: `uuid=eq.${userId}`,
+        },
+        (payload) => {
+          console.log('User update received:', payload)
+          if (payload.new) {
+            setUser(payload.new as User)
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [userId])
+
   const initializeUser = async () => {
     try {
       setLoading(true)
@@ -101,10 +129,14 @@ export const useUserHook = () => {
 
     try {
       const newPoints = Number(user.points) + pointsToAdd
+      const newLevel = Math.floor(newPoints / 100) // Level up every 100 points
 
       const { data, error: updateError } = await supabase
         .from('users')
-        .update({ points: newPoints })
+        .update({ 
+          points: newPoints,
+          level: newLevel 
+        })
         .eq('uuid', userId)
         .select()
         .single()
