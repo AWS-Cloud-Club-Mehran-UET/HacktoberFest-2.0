@@ -1,80 +1,88 @@
-# 🚀 HacktoberFest-Hackathon 2025 
+# 🧾 SHOPEASE Sales Management System
 
-Welcome to the **HacktoberFest-Hackathon 2025**! 🎉  
-This repository is the central workspace for all participants to collaborate, code, and submit their projects. Read the instructions carefully to understand the workflow and rules for the event.
-
----
-
-## 🏁 Introduction
-
-The **Hackathon 2025** brings together creative developers, designers, and innovators to solve real-world problems through technology.  
-Your goal is to design, develop, and deliver a working solution.
-
-- **Format:** Team-based hackathon  
-- **Duration:** 7 hrs  
-- **Submission:** Teams will fork this repo, develop their solution, and submit via Pull Request to the `submission` branch.  
+A **modern web-based invertory management** system built using **React.js**, **Tailwind CSS**, and **Node.js/Express** for backend integration.  
+It enables users to **add, edit, and manage product sales**, track customers, and calculate totals dynamically — all through a sleek and responsive interface.
 
 ---
 
-## 🧰 Prerequisites
+## 🚀 Features
 
-Before participating, ensure you have the following ready:
+### 🛍️ Sales Management
+- Create and manage sales with **customer name**, **payment method**, and **discounts**.
+- Add multiple products per sale — each with **quantity**, **price**, and **discount**.
+- Auto-calculate:
+  - Subtotal per product
+  - Total discount
+  - Tax
+  - Shipping
+  - **Grand Total**
 
-- **GitHub Account:** [Sign up here](https://github.com/join) if you don’t have one.
-- **Git Installed:** [Download Git](https://git-scm.com/downloads)
-- **Basic Git Knowledge:** Familiarity with commands like  
-  `clone`, `branch`, `add`, `commit`, `push`, and `pull request`.
-- **Code Editor:** Use any IDE or text editor (VSCode, IntelliJ, etc.).
-- **Development Environment:** Set up all required tools, SDKs, or frameworks for your project.
+### 📦 Product Handling
+- Search and filter products in real-time.  
+- View all details like product name, SKU, category, quantity, and price.  
+- Option to export product data as **CSV** or **PDF**.
+
+### 👤 Customer & Warehouse Integration
+- Select customers and warehouses dynamically from database records.
+- Assign **biller name** and track sales by user.
+
+### 💳 Payment & Tax Configuration
+- Multiple **payment statuses** supported: `Paid`, `Pending`, and `Due`.  
+- Configurable **tax**, **discount**, and **shipping** fields with real-time calculations.
+
+### 🧮 Automated Calculations
+- Automatically updates totals when quantity or discount is changed.
+- Shows real-time calculation of:
+  - Number of items  
+  - Subtotal  
+  - Tax amount  
+  - Discounts  
+  - Shipping  
+  - **Grand Total**
+
+### ✏️ Edit Sale (EditSale.jsx)
+- Fetch existing sale details from the backend using the sale ID.
+- Pre-fills form fields with previous sale data.
+- Allows editing and resubmission to update sale records.
+
+### 📜 Sale List (SaleList.jsx)
+- Displays all existing sales with product, customer, and total details.
+- Includes options to **Edit** or **Delete** individual sales.
+- Allows **CSV export** for sales records.
+- Search functionality for filtering by **customer** or **product name**.
+
+### 🧠 State Management
+- Powered by **React Context API** for efficient data handling.
+- Centralized state management for customers, products, and sales.
+
+### ⚡ Modern UI/UX
+- Fully **responsive** design with Tailwind CSS.
+- **Framer Motion animations** for smooth visual transitions.
+- **Lucide React icons** for clean, minimal UI.
 
 ---
 
-## 📜 Instructions & Guidelines
+## 🧩 Tech Stack
 
-To ensure smooth participation, follow the official workflow and collaboration rules provided in these documents:
-
-| Document | Description |
-|-----------|-------------|
-| [GIT_WORKFLOW.md](./GIT_WORKFLOW.md) | Step-by-step guide on how to fork, branch, and submit your project |
-| [TEAM_COLLABORATION.md](./TEAM_COLLABORATION.md) | Guide for team coordination, merging work, and avoiding conflicts |
-
-**Quick Summary:**
-- Fork this repository.  
-- Create your team branch (e.g., `team-alpha`).  
-- Work inside `/submission/team-name/` folder.  
-- Commit and push changes to your branch.  
-- Open a Pull Request to merge into the `submission` branch before the deadline.  
-
----
-
-## ⏱️ Time Limits
-
-- Each team will have **7 hrs** to complete their project.  
-- **Pull Requests must be submitted before the deadline.**  
-- Late submissions will **not** be considered, regardless of progress.  
+| Layer | Technology |
+|-------|-------------|
+| **Frontend** | React.js (Functional Components + Hooks) |
+| **UI Styling** | Tailwind CSS |
+| **Animations** | Framer Motion |
+| **Icons** | Lucide React |
+| **State Management** | React Context API |
+| **Routing** | React Router DOM |
+| **Backend** | Node.js + Express.js |
+| **Database** | MongoDB with Mongoose |
+| **Auth** | JWT Token Authorization |
+| **API Access** | Environment Variable: `VITE_BACKEND_URL` |
 
 ---
 
-## 🚫 Disqualification Rules
+## ⚙️ Installation & Setup
 
-- ❌ **Late Pull Requests** (after the deadline) will not be accepted.  
-
-Ensure all work is original and created during the event timeframe.
-
----
-
-## 💬 Need Help?
-
-If you face any technical or Git-related issues:
-- Open a **Discussion** in this repository for public help.
-- Reach out to the **organizing team** through official communication channels (Discord, email, etc.).
-- Check the [GIT_WORKFLOW.md](./GIT_WORKFLOW.md) for troubleshooting Git errors and syncing your fork.
-
----
-
-## 🎯 Final Note
-
-Follow the structure, respect the timeline, and collaborate effectively.  
-This hackathon is about creativity, learning, and teamwork — make it count! 💪  
-Good luck to all participants! 🚀
-
+### 🖥️ Frontend (React)
+```bash
+cd frontend
+npm install
+npm run dev
