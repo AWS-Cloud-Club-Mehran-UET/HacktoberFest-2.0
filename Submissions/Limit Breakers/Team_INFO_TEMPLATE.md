@@ -6,7 +6,7 @@
 |--------------|----------------|------|
 | [Syed Sayeel Abbas] | [@SyedSayeelAbbas] | Team Lead , Developer|
 | [Ahmed Memon] | [@AhmedMemon7x] | Developer |
-| [Harron Zulfiqar] | [@HaroonZulfiqar] | Designer |
+| [Harron Zulfiqar] | [@HaroonZulfiqar] | Testing |
 
 > The **Team Lead** is responsible for forking the repository, creating this folder, and adding all members as collaborators.
 
