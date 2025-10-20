@@ -1,20 +1,18 @@
 const mongoose = require('mongoose')
 
 const addProduct = new mongoose.Schema({
-   
     productName: {
         type: String,
         required: true,
+    },
+    category:{
+     type:String,
+     required:true
     },
     SKU: {
         type: String,
         required: true
     },
-    category: {
-        type: String,
-        required: true,
-    },
- 
     productPrice: {
         type: Number,
         required: true
@@ -22,6 +20,7 @@ const addProduct = new mongoose.Schema({
     quantity: {
         type: Number,
     },
+    
 })
 
 
