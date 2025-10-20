@@ -24,6 +24,11 @@ export function restrictUserLogin(req, res, next) {
             return;
         }
 
+        if(verifiedUser.role !== "user") {
+            res.status(403).json({ message: "You are not authorized to access this resource." });
+            return;
+        }
+
         req.user = verifiedUser;
         next();
     } catch (err) {

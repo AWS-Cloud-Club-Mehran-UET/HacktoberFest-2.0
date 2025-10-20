@@ -14,10 +14,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-
-import userRouter from './routes/user.routes.js'
+import userRouter from './routes/user.routes.js';
+import reportRouter from './routes/report.routes.js';
 
 app.use('/api/user', userRouter);
+app.use('/api/report', reportRouter);
 
 import connectDB from './config/db.config.js'
 connectDB();

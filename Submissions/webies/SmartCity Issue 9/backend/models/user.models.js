@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
 
 const userSchema = new mongoose.Schema({
+    name: {
+        type: String, 
+        required: true
+    },
     email: {
         type: String,
         required: true,
@@ -12,7 +16,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false,
         select: false
-    }
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin', 'driver'],
+        default: 'user'
+    },
+
+    reports: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Incident' }]
 }, { timestamps: true });
 
 userSchema.pre("save", async function (next) {
