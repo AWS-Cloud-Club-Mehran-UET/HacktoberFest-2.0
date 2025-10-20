@@ -1,9 +1,9 @@
 
 import TransactionModal from "@/components/TransactionModal";
 import WalletModal from "@/components/WalletModal";
+import { useData } from "@/context/dataContext";
 import { useThemeContext } from "@/context/themeContext";
 import { useTransaction } from "@/hooks/useTransaction";
-import { useWallet } from "@/hooks/useWallet";
 import { Tabs } from "expo-router";
 import { Bot, Home, List, Plus, User } from "lucide-react-native";
 import { useState } from "react";
@@ -11,8 +11,8 @@ import { Alert, Platform, TouchableOpacity, View } from "react-native";
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const { theme } = useThemeContext();
-  const { wallets, createWallet } = useWallet();
-  const { createTransaction, pickImage } = useTransaction();
+  const { wallets, createWallet, createTransaction } = useData();
+  const { pickImage } = useTransaction();
   const [isTransactionModalVisible, setIsTransactionModalVisible] = useState(false);
   const [isWalletModalVisible, setIsWalletModalVisible] = useState(false);
 
@@ -133,8 +133,16 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         visible={isWalletModalVisible}
         onClose={() => setIsWalletModalVisible(false)}
         onSave={async (data) => {
-          await createWallet(data);
-          setIsWalletModalVisible(false);
+          try {
+            // Close modal first to prevent navigation context issues
+            setIsWalletModalVisible(false);
+            // Small delay to ensure modal is fully closed
+            await new Promise(resolve => setTimeout(resolve, 100));
+            // Then create wallet
+            await createWallet(data);
+          } catch (error) {
+            console.error('Error creating wallet:', error);
+          }
         }}
       />
 
@@ -142,8 +150,17 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         visible={isTransactionModalVisible}
         onClose={() => setIsTransactionModalVisible(false)}
         onSave={async (data) => {
-          await createTransaction(data);
-          setIsTransactionModalVisible(false);
+          try {
+            // Close modal first to prevent navigation context issues
+            setIsTransactionModalVisible(false);
+            // Small delay to ensure modal is fully closed
+            await new Promise(resolve => setTimeout(resolve, 100));
+            // Then create transaction
+            await createTransaction(data);
+          } catch (error) {
+            console.error('Error creating transaction:', error);
+            // Optionally show error to user
+          }
         }}
         wallets={wallets}
         onPickImage={pickImage}

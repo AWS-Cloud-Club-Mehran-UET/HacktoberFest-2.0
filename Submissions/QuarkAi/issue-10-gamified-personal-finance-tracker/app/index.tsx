@@ -65,7 +65,7 @@ export default function SplashScreen() {
             alignItems: "center",
           }}
         >
-
+{/* header start */}
           <View className="mb-12">
             <View className={`w-28 h-28 rounded-3xl items-center justify-center ${
               theme === 'dark' 
